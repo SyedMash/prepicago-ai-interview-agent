@@ -12,10 +12,8 @@ const Hero = async () => {
   const interviews = await getInterviewsByUserId();
   const otherInterviews = await getInterviewsByOtherUserId();
 
-  console.log(interviews);
-
   return (
-    <section className="px-4 xl:px-0">
+    <section className="px-4 xl:px-0 min-h-screen">
       <div className="min-h-[50vh] w-full flex flex-col items-center justify-center">
         <h1 className="text-[2rem] lg:text-[3rem] font-semibold">
           Ai Interview Agent
