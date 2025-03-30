@@ -7,10 +7,16 @@ import {
   getInterviewsByUserId,
 } from "@/lib/actions/interview.action";
 import { HOMEPAGE_TEXT } from "@/constants";
+import { createClient } from "@/lib/supabase/server";
 
 const Hero = async () => {
   const interviews = await getInterviewsByUserId();
   const otherInterviews = await getInterviewsByOtherUserId();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <section className="px-4 xl:px-0 min-h-screen">
@@ -36,6 +42,7 @@ const Hero = async () => {
                 <InterviewCard
                   key={interviews.id}
                   {...interviews}
+                  currentUserId={user?.id as string}
                   techStack={formattedTechStack}
                 />
               );
@@ -56,6 +63,7 @@ const Hero = async () => {
                 <InterviewCard
                   key={interviews.id}
                   {...interviews}
+                  currentUserId={user?.id as string}
                   techStack={formattedTechStack}
                 />
               );

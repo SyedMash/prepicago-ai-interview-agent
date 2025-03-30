@@ -1,5 +1,8 @@
+"use server"
+
 import { redirect } from "next/navigation"
 import { createClient } from "../supabase/server"
+import { revalidatePath } from "next/cache"
 
 export const getInterviewsByUserId = async () => {
     const supabase = await createClient()
@@ -31,3 +34,16 @@ export const getInterviewsByOtherUserId = async () => {
     return interviews
 }
 
+export const deleteInterview = async (id: string) => {
+    const supabase = await createClient()
+
+    try {
+        const { error } = await supabase.from("interviews").delete().eq("id", id)
+        if (error) return { success: false, message: error }
+
+        revalidatePath("/", "layout")
+        return { success: false, message: "Interview deleted successfully" }
+    } catch (error) {
+        return { success: false, message: error }
+    }
+}
