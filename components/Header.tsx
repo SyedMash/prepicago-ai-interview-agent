@@ -14,11 +14,17 @@ const Header = async () => {
       <Link href={"/"}>
         <h1 className="text-2xl font-bold">PREPICAGO</h1>
       </Link>
-      {user && <p className="text-muted-foreground hidden lg:block">
-        Hello,{" "}
-        <span className="font-semibold">{user?.user_metadata.displayName}</span>
-      </p>}
-      <Button onClick={signOut} className="btn">Sign Out</Button>
+      {user && (
+        <p className="text-muted-foreground hidden lg:block">
+          Hello,{" "}
+          <span className="font-semibold">
+            {user?.user_metadata.displayName}
+          </span>
+        </p>
+      )}
+      <Button onClick={signOut} className="btn">
+        Sign Out
+      </Button>
     </header>
   );
 };

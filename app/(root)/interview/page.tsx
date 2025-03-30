@@ -11,8 +11,8 @@ const InterviewPage = async () => {
   if (!user) redirect("/sign-in");
 
   return (
-    <section>
-      <p className="mt-48 text-2xl">Generate Interview</p>
+    <section className="min-h-screen px-4 xl:px-0">
+      <p className="mt-12 lg:mt-24 2xl:mt-48 text-2xl">Generate Interview</p>
       <Agent
         userName={user.user_metadata.displayName}
         userId={user.id}

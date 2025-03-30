@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
 type AgentProps = {
   userName: string;
@@ -35,7 +36,12 @@ const Agent = ({ userName, type, userId }: AgentProps) => {
   useEffect(() => {
     const onCallStart = () => setCallStatus(CALLSTATUS.ACTIVE);
     const onCallEnd = () => setCallStatus(CALLSTATUS.FINISHED);
-    const onMessage = (message: any) => {
+    const onMessage = (message: {
+      role: "user" | "system" | "Ai agent";
+      transcript: string;
+      type: string;
+      transcriptType: string;
+    }) => {
       if (message.type === "transcript" && message.transcriptType === "final") {
         const newMessage: Message = {
           role: message.role,
@@ -94,32 +100,29 @@ const Agent = ({ userName, type, userId }: AgentProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div
           className={cn(
-            "border rounded-3xl h-96 flex flex-col items-center justify-center",
+            "border rounded-3xl h-48 lg:h-56 2xl:h-96 flex flex-col items-center justify-center",
             isSpeaking && "border-green-500"
           )}
         >
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-row lg:flex-col items-center justify-center gap-5">
             <Image
               src={"/images/robot.jpg"}
               alt="robot"
-              height={150}
-              width={150}
+              height={100}
+              width={100}
               priority
               className="rounded-full border-2 border-gray-200 object-cover aspect-square"
             />
             <p className="text-center text-xl">Ai Agent</p>
           </div>
         </div>
-        <div className="border rounded-3xl h-96 flex flex-col items-center justify-center">
-          <div className="flex flex-col gap-5">
-            <Image
-              src={"/images/robot.jpg"}
-              alt="robot"
-              height={150}
-              width={150}
-              priority
-              className="rounded-full border-2 border-gray-200 object-cover aspect-square"
-            />
+        <div className="border rounded-3xl h-48 lg:h-56 2xl:h-96 flex flex-col items-center justify-center">
+          <div className="flex flex-row lg:flex-col items-center justify-center gap-5">
+            <Avatar className="border-2 border-gray-200 aspect-square h-[100px] w-[100px]">
+              <AvatarFallback className="text-2xl font-bold">
+                {userName[0]}
+              </AvatarFallback>
+            </Avatar>
             <p className="text-center text-xl">You</p>
           </div>
         </div>
