@@ -69,7 +69,7 @@ const Hero = async () => {
               );
             })
           ) : (
-            <p>You have no interviews</p>
+            <p>No interviews</p>
           )}
         </div>
       </div>

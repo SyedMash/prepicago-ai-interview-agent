@@ -1,17 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { interviewer } from "@/constants";
+import { generateFeedback } from "@/lib/actions/feedback.action";
+import { toast } from "sonner";
 
 type AgentProps = {
   userName: string;
   userId: string;
   type: "GENERATE" | "INTERVIEW";
+  interviewId?: string;
+  questions?: string[];
 };
 
 enum CALLSTATUS {
@@ -26,7 +31,13 @@ interface Message {
   content: string;
 }
 
-const Agent = ({ userName, type, userId }: AgentProps) => {
+const Agent = ({
+  userName,
+  type,
+  userId,
+  questions,
+  interviewId,
+}: AgentProps) => {
   const router = useRouter();
 
   const [callStatus, setCallStatus] = useState<CALLSTATUS>(CALLSTATUS.INACTIVE);
@@ -71,19 +82,54 @@ const Agent = ({ userName, type, userId }: AgentProps) => {
     };
   }, []);
 
+  const handleGenerateFeedback = useCallback(async () => {
+    const { success, data, error } = await generateFeedback({
+      interviewId: interviewId!,
+      userId,
+      transcript: messages,
+    });
+    if (success) {
+      console.log(data);
+      toast.success("Feedback generated successfully");
+      router.push(`/interview/${interviewId}/feedback`);
+    } else {
+      toast.error(error?.message as string);
+    }
+  }, [interviewId, userId, messages, router]);
+
   useEffect(() => {
-    if (callStatus === CALLSTATUS.FINISHED) router.push("/");
-  }, [messages, callStatus, type, userId, router]);
+    if (callStatus === CALLSTATUS.FINISHED) {
+      if (type === "GENERATE") {
+        router.push("/");
+      } else {
+        handleGenerateFeedback();
+      }
+    }
+  }, [messages, callStatus, type, userId, router, handleGenerateFeedback]);
 
   const handleCall = async () => {
     setCallStatus(CALLSTATUS.CONNECTING);
 
-    await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-      variableValues: {
-        username: userName,
-        userId: userId,
-      },
-    });
+    if (type === "GENERATE") {
+      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
+        variableValues: {
+          username: userName,
+          userId: userId,
+        },
+      });
+    } else {
+      let formattedQuestions = "";
+      if (questions) {
+        formattedQuestions = questions
+          .map((question) => `- ${question}`)
+          .join("\n");
+      }
+      await vapi.start(interviewer, {
+        variableValues: {
+          questions: formattedQuestions,
+        },
+      });
+    }
   };
 
   const handleDisconnect = async () => {

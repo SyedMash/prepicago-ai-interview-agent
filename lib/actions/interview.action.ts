@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "../supabase/server"
 import { revalidatePath } from "next/cache"
+import { deleteFeedback } from "./feedback.action"
+
 
 export const getInterviewsByUserId = async () => {
     const supabase = await createClient()
@@ -39,11 +41,24 @@ export const deleteInterview = async (id: string) => {
 
     try {
         const { error } = await supabase.from("interviews").delete().eq("id", id)
-        if (error) return { success: false, message: error }
+        const { error: feedbackError } = await deleteFeedback(id)
+        if (error || feedbackError) return { success: false, error: error || feedbackError }
 
         revalidatePath("/", "layout")
-        return { success: false, message: "Interview deleted successfully" }
+        return { success: true, message: "Interview deleted successfully" }
     } catch (error) {
         return { success: false, message: error }
+    }
+}
+
+export const getInterviewById = async (id: string) => {
+    const supabase = await createClient()
+    try {
+        const { data: interview, error } = await supabase.from("interviews").select("*").eq("id", id)
+        if (error) return null
+
+        return interview[0] as Interview
+    } catch (error) {
+        return console.error(error)
     }
 }
