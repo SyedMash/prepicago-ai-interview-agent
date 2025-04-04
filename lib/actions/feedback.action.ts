@@ -51,8 +51,28 @@ export const generateFeedback = async ({ interviewId, transcript, userId }: Crea
 
         if (error) return { success: false, error }
 
-        return { success: true, data }
+        try {
+            const { data: users, error: usersError } = await supabase
+                .from("interviews")
+                .select("userId")
+                .eq("id", interviewId)
+                .single();
 
+            if (usersError) return { success: false, error: usersError }
+
+            const updatedArray = [...(users["userId"] || []), userId]
+
+            const { error: updatedError } = await supabase
+                .from("interviews")
+                .update({ userId: updatedArray })
+                .eq("id", interviewId)
+
+            if (updatedError) return { success: false, error: updatedError }
+
+            return { success: true, data }
+        } catch (error) {
+            return { success: false, error }
+        }
     } catch (error) {
         console.error(error)
         return { success: false, message: error }
@@ -73,11 +93,11 @@ export const getFeedbackByInterviewId = async (interviewId: string) => {
     }
 }
 
-export const deleteFeedback = async (interviewId: string) => {
+export const deleteFeedBackByUserId = async (userId: string) => {
     const supabase = await createClient()
 
     try {
-        const { error } = await supabase.from("feedbacks").delete().eq("interviewId", interviewId)
+        const { error } = await supabase.from("feedbacks").delete().eq("userId", userId)
         if (error) return { success: false, error }
 
         return { success: true, message: "Feedback deleted successfully" }

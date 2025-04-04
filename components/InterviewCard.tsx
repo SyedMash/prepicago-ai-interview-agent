@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import DeleteBin from "./DeleteBin";
 import { getFeedbackByInterviewId } from "@/lib/actions/feedback.action";
+import { ByWhom } from "@/lib/utils";
 
 type InterviewCardProps = {
   id: string;
@@ -12,7 +13,7 @@ type InterviewCardProps = {
   level: string;
   techStack: string[];
   created_at: string;
-  userId: string;
+  userId: string[];
   currentUserId: string;
   feedback?: Promise<Feedback | null>;
 };
@@ -31,10 +32,16 @@ const InterviewCard = async ({
 
   return (
     <div className="shadow-xl p-5 rounded-3xl border  hover:scale-105 transition-all duration-300 relative">
-      {userId === currentUserId && <DeleteBin id={id} />}
+      {userId.includes(currentUserId) && (
+        <DeleteBin id={id} currentUserId={currentUserId} />
+      )}
       <h1 className="text-2xl lg:text-3xl font-bold capitalize">{role}</h1>
       <p className="text-muted-foreground">
-        Created on: <span className="font-semibold">{formattedDate}</span>
+        Created at: <span className="font-semibold">{formattedDate}</span>
+      </p>
+      <p className="text-muted-foreground">
+        By:{" "}
+        <span className="font-semibold">{ByWhom(userId, currentUserId)}</span>
       </p>
       <p className="text-muted-foreground">
         Level: <span className="font-semibold">{level}</span>

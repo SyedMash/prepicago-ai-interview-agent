@@ -5,9 +5,15 @@ import { Trash } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 
-const DeleteBin = ({ id }: { id: string }) => {
+const DeleteBin = ({
+  id,
+  currentUserId,
+}: {
+  id: string;
+  currentUserId: string;
+}) => {
   const handleDelete = async () => {
-    const { success, message } = await deleteInterview(id);
+    const { success, message } = await deleteInterview(id, currentUserId);
     if (success) {
       toast.success(message as string);
     } else {

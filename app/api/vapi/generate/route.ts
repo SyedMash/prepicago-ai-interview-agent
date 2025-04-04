@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
             role,
             level,
             techStack: techStack.split(","),
-            userId,
+            userId: userId,
             questions: JSON.parse(questions)
         }
 
